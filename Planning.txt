@@ -1,0 +1,361 @@
+Population, Production, and Consumption
+
+ 
+
+[Comments]
+
+***Titles
+
+(x+x) example calculations to help me work stuff out
+
+ 
+
+***Basic Variables:
+
+ 
+
+[Actual numbers given are examples and can be ignored]
+
+Var season (either Spring, Summer, Autumn, or Winter)
+
+Var FarmerHouseholds = 200
+
+Var CurrentFarmland = 360
+
+Var CurrentPasture = 10
+
+Var CattlePop = 150
+
+Var FoodSurplus = 50
+
+Var CraftsHouseholds = 40
+
+Var CraftGoods
+
+Var WeaponHouseholds = 8
+
+Var Totalhouseholds = FarmerHouseholds+CraftsHouseholds+WeaponHouseholds (200+40+8)=248
+
+Var Levies = FarmerHouseholds*2
+
+                IF season=Spring THEN Levies = FarmerHouseholds/2 else
+
+                IF season=Autumn THEN Levies = FarmerHouseholds/2 else
+
+                IF season=Winter THEN Levies = FarmerHouseholds/2 else skip
+
+[Farmers levied into the army. Few will be able to leave the farms in Spring and Autumn, and few will be willing to go to war in Winter]
+
+Var LevyCheck = 1 or 0
+
+                IF farmers levied THEN LevyCheck = 1
+
+                IF levies disbanded THEN LevyCheck = 0 upon season change
+
+[Tracks if farmers have been levied into the army or not. If levied into the army they will not rejoin the farm until the next season]
+
+               
+
+***Farmers
+
+ 
+
+Var FarmerHouseholds = 200
+
+Var FarmRequiredFood = FarmerHouseholds = 200
+
+[Farmland required to sustain the farmers]
+
+Var FarmerCapacity = FarmerHouseholds = 200
+
+[Value represents maximum amount of land that can be farmed effectively by current farmer population]
+
+ 
+
+Var CurrentFarmland = 360
+
+[Amount of land that is currently set for use by farmers]
+
+ 
+
+Var UselessFarmland = CurrentFarmland-FarmerCapacity (360-200 = 160)
+
+[There are 160 units of useless farmland going to waste]
+
+ 
+
+Var UsefulFarmland = CurrentFarmland-UselessFarmland (360-160 = 200)
+
+[The amount of useful land that the farmers are using properly]
+
+ 
+
+***Making Food
+
+ 
+
+IF season=Winter THEN skip
+
+[No food is harvested in winter]
+
+Var FarmerFoodMade = UsefulFarmland*1.5-FarmerHouseholds (200*1.5=300-200 = 100)
+
+[FarmerFoodMade is calculated from UsefulFarmland*1.5 (farmers make half again as much food as they need) minus the number of FarmerHouseholds (representing the food they eat)]
+
+                IF season=Autumn THEN FarmerFoodMade*2 [Autumn harvest produces extra food]
+
+                IF season=Winter THEN FarmerFoodMade=0 [Winter produces no crops]
+
+[FarmerFoodMade is the amount of food farmers make that does not go to their own use. The variable FarmerFoodMade goes straight to Craftspeople and Weaponthanes]
+
+                IF LevyCheck = 1 AND season=Spring THEN FarmerFoodMade = FarmerFoodMade/2
+
+                IF LevyCheck = 1 AND season=Autumn THEN FarmerFoodMade = FarmerFoodMade/2
+
+[If farmers have been levied into the army in Spring or Autumn it will halve food production]
+
+ 
+
+[Should farmers make less food?]
+
+ 
+
+***Eating Food
+
+ 
+
+Var TotalConsumption = CraftRequiredFood+WeaponRequiredFood (40+16)=56
+
+[Total food needed by Craftsmen and Weaponthanes, who produce no food of their own]
+
+ 
+
+Var FoodSurplus = FoodSurplus+FarmerFoodMade-TotalConsumption (50+100-56 = 94)
+
+[FoodSurplus is stored food left over after everyone has eaten as much as they need. It will be used in Winter as food, to avoid starvation, or can be traded. In the example the FoodSurplus starts at 50, farmers add 100, then everyone else takes 56, leaving FoodSurplus at 94]
+
+ 
+
+IF season change THEN FoodSurplus = FoodSurplus-FoodSurplus/100*10
+
+[FoodSurplus must decline by 10% with every change in season, representing food rotting away]
+
+ 
+
+***Farmer population growth
+
+ 
+
+IF StarvationCheck = >1 THEN FarmerHouseholds=FarmerHouseholds+FoodSurplus/3/10
+
+[If they are not starving, FarmerHouseholds will grow by a tenth of one-third the value of the total food surplus]
+
+IF season=Spring THEN IF StarvationCheck = >1 THEN FarmerHouseholds=FarmerHouseholds+Foodsurplus/3/5
+
+[Same as above population growth, but twice as many children are born in springtime]
+
+ 
+
+***Cattle
+
+ 
+
+Var CattlePop = 150
+
+Var CattleCapacity = CurrentPasture*20 (10*20)=200
+
+Var CattleGrowth = CattleCapacity/10 (200/10)=20
+
+Var CattleOverPop = CattleCapacity-CattlePop
+
+IF CattleOverPop = >1 THEN CattlePop=CattlePop-CattleOverPop
+
+[If there are too many cattle for the land, their numbers will be reduced to fit]
+
+ 
+
+***Craftspeople
+
+ 
+
+Var CraftsHouseholds = 40
+
+Var CraftRequiredFood = CraftHouseholds = 40
+
+Var CraftGoodsMade = CraftsHouseholds = 40
+
+                IF winter THEN CraftGoodsMade = CraftsHouseholds*2 (40*2)=80
+
+                [Craftspeople make twice as many goods in winter]
+
+Var CraftGoods = CraftGoods+CraftGoodsMade
+
+[CraftGoods is added to by seasonal production]
+
+ 
+
+[To do: tax on Goods by religious buildings, and negative consequences if there are too few Goods]
+
+ 
+
+***Craftspeople population growth
+
+ 
+
+IF StarvationCheck = >1 THEN CraftHouseholds=CraftHouseholds+FoodSurplus/3/10
+
+[If they are not starving, CraftHouseholds will grow by a tenth of one-third the value of the total food surplus]
+
+IF season=Spring THEN IF StarvationCheck = >1 THEN CraftHouseholds=CraftHouseholds+FoodSurplus/3/5
+
+[Same as above population growth, but twice as many children are born in springtime]
+
+ 
+
+***Weaponthanes
+
+ 
+
+Var WeaponHouseholds = 8
+
+Var WeaponRequiredFood = WeaponHouseholds*2 (8*2)=16
+
+[Weaponthanes require twice as much food as others]
+
+Var WeaponThanes = WeaponHouseholds*5 (8*5)=40
+
+[Weaponthanes are promoted deliberately by players and do not grow naturally on their own]
+
+ 
+
+***Starvation (Spring, Summer, Autumn)
+
+ 
+
+IF season=Winter THEN skip
+
+ 
+
+Var StarvationCheck = FarmerFoodMade-TotalConsumption
+
+[StarvationCheck is identical to the value of FoodSurplus, but where FoodSurplus carries from season to season StarvationCheck only reflects the food made in that season alone]
+
+ 
+
+IF StarvationCheck = <0 THEN StarvationCheck=FoodSurplus-StarvationCheck FoodSurplus=FoodSurplus-StarvationCheck
+
+[If starvation is immanent food supplies will be taken from FoodSurplus, reducing FoodSurplus by the amount needed to avoid starvation]
+
+IF StarvationCheck = <0 AND FoodSurplus = <1 THEN
+
+PRINT Starvation! Farmer households reduced by [FarmerHouseholds+StarvationSplit etc. for Craftspeople and Weaponthanes]
+
+StarvationSplit = StarvationCheck/3 FarmerHouseholds=FarmerHouseholds+StarvationSplit; CraftHouseholds=CraftHouseholds+StarvationSplit; WeaponHouseholds=WeaponHouseholds+StarvationSplit
+
+[If starvation is immanent and there are no more FoodSurplus stores to take, deaths are calculated by splitting the negative value StarvationCheck equally between Farmers, Craftsmen, and Weaponthanes]
+
+ELSE skip
+
+[If they are not starving this all should be ignored]
+
+ 
+
+***Winter Starvation
+
+[Winter consumption and starvation works differently because no food is produced in winter. All food eaten must be taken from variable FoodSurplus]
+
+ 
+
+IF season=Spring or Summer or Autumn THEN skip
+
+ 
+
+Var WinterConsumption = FoodSurplus-FarmRequiredFood+CraftRequiredFood+WeaponRequiredFood
+
+[Amount of food that will be taken from the FoodSurplus over winter. If this variable is negative, it will initiate the winter starvation mechanic.]
+
+ 
+
+Var WinterConsumptionSplit=WinterConsumption/3
+
+                IF WinterConsumption = <1 THEN FarmerHouseholds=FarmerHouseholds+WinterConsumptionSplit; CraftHouseholds=CraftHouseholds+WinterConsumptionSplit; WeaponHouseholds=WeaponHouseholds+WinterConsumptionSplit
+
+[Calculates the deaths accompanying starvation in winter if there is insufficient food. Does so by splitting the total food deficit equally between farmers, craftsmen, and weaponthanes (variable WinterConsumptionSplit). Adds the negative WinterConsumptionSplit value to the xHouseholds variable of each population type. This reduces the number of households]
+
+ELSE FoodSurplus = FoodSurplus-WinterConsumption
+
+[If they are not starving, FoodSurplus is reduced by the amount WinterConsumption]
+
+ 
+
+***Variables to display clearly
+
+ 
+
+Season
+
+ 
+
+FarmerHouseholds
+
+ 
+
+CattlePop
+
+CurrentPasture
+
+CattleCapacity
+
+CattleGrowth
+
+ 
+
+CurrentFarmland
+
+UsefulFarmland
+
+UselessFarmland
+
+ 
+
+FoodSurplus
+
+FarmerFoodMade
+
+ 
+
+CraftHouseholds
+
+ 
+
+CraftGoods
+
+CraftGoodsMade
+
+ 
+
+Weaponthanes
+
+ 
+
+[Section for starvation messages if necessary]
+
+ 
+
+***Variables that must be able to be changed manually at any time
+
+ 
+
+FarmerHouseholds
+
+CraftHouseholds
+
+WeaponHouseholds
+
+FoodSurplus
+
+CattlePop
+
+CurrentFarmland
+
+CraftGoods
